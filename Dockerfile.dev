@@ -1,0 +1,10 @@
+FROM node:lts-alpine
+WORKDIR /app
+COPY package.json package.json
+COPY package-lock.json package-lock.json
+#RUN npm install -g --save dotenv-extended
+#RUN npm install -g --save dotenv
+RUN npm install -g nodemon
+RUN npm install
+COPY . .
+CMD [ "node", "server.js" ]
