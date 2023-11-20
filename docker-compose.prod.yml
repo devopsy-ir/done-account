@@ -2,6 +2,7 @@ version: "3.9"
 
 services:
   account:
+    image: done/account:latest
     ports:
       - 5000:5000
     environment:
