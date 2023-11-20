@@ -16,6 +16,21 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
+    networks:
+      - traefik-public
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        # Change the host url here
+        - "traefik.http.routers.account-app.rule=Host(`account.example.ir`)"
+        - "traefik.http.services.account-app.loadbalancer.server.port=5000"
+        - "traefik.http.routers.account-app.middlewares=account-md"
+#        - "traefik.http.routers.account-app.entrypoints=websecure"
+        - "traefik.http.routers.account-app.entrypoints=web"
+#        - "traefik.http.routers.account-app.tls=true"
+#        - "traefik.http.routers.account-app.tls.certresolver=leresolver"
+        # Change the password here
+        - "traefik.http.middlewares.account-md.basicauth.users=admin:$$2y$$05$$XhiymfvW5iDUQBsAvOysfeonXELsfqyObi/E7X30A7/LCJHA.P1SG" # user/password
 
   mongo:
 #    image: mongo:4.2.3-bionic
@@ -26,12 +41,12 @@ services:
       - MONGO_INITDB_DATABASE=accountico
       - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${DB_PASS}
-    volumes:
+#    volumes:
       # seeding scripts
-      - ./mongo-entrypoint:/docker-entrypoint-initdb.d
+#      - ./mongo-entrypoint:/docker-entrypoint-initdb.d
       # named volumes
-      - ./volumes/mongodb:/data/db
-      - ./mongoconfig:/data/configdb
+#      - ./volumes/mongodb:/data/db
+#      - ./mongoconfig:/data/configdb
     healthcheck:
       #test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
@@ -39,3 +54,20 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
+    volumes:
+      # seeding scripts
+      - mongo_entrypoint:/docker-entrypoint-initdb.d
+      # named volumes
+      - mongo_data:/data/db
+      - mongo_config:/data/configdb
+    networks:
+      - traefik-public
+
+volumes:
+  mongo_entrypoint:
+  mongo_data:
+  mongo_config:
+
+networks:
+  traefik-public:
+    external: true
