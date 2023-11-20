@@ -1,4 +1,5 @@
-version: "3"
+version: "3.9"
+
 services:
   account:
     ports:
@@ -13,9 +14,10 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     command: npm start
-    depends_on:
-      mongo:
-        condition: service_healthy
+# Commented out: https://stackoverflow.com/a/49284315/659077
+#    depends_on:
+#      mongo:
+#        condition: service_healthy
     networks:
       - traefik-public
     deploy:
